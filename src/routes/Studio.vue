@@ -1,22 +1,22 @@
 <template>
   <div :class="$style.main" :style="{ marginBottom: '16px' }">
-    <a-descriptions :title="state.device?.model || '未连接'" :column="2" size="small">
+    <a-descriptions :title="state.device?.model || 'Niet verbonden'" :column="2" size="small">
       <template #extra>
         <a-space>
-          <a-button v-if="connected" @click="reset">断开</a-button>
-          <a-button v-else type="primary" :loading="connecting" @click="connect">连接</a-button>
+          <a-button v-if="connected" @click="reset">Verbinding verbreken</a-button>
+          <a-button v-else type="primary" :loading="connecting" @click="connect">Verbinden</a-button>
         </a-space>
       </template>
-      <a-descriptions-item label="ECO 版本">
+      <a-descriptions-item label="ECO Versie">
         {{ state.device?.revision || 'N/A' }}
       </a-descriptions-item>
-      <a-descriptions-item label="MAC 地址">
+      <a-descriptions-item label="MAC adres">
         <code>{{ state.device?.mac || 'N/A' }}</code>
       </a-descriptions-item>
-      <a-descriptions-item label="Flash 大小">
+      <a-descriptions-item label="Flash grootte">
         {{ state.device?.flash_size ? `${state.device.flash_size} MB` : 'N/A' }}
       </a-descriptions-item>
-      <a-descriptions-item label="PSRAM 大小">
+      <a-descriptions-item label="PSRAM grootte">
         {{ state.device?.psram_size ? `${state.device.psram_size} MB` : 'N/A' }}
       </a-descriptions-item>
     </a-descriptions>
@@ -46,14 +46,14 @@
           <template #icon>
             <folder-open-outlined />
           </template>
-          选择固件
+          Selecteer firmware
         </a-button>
       </a-upload>
       <a-button type="primary" :loading="flashing" :disabled="!connected || !props.state.firmware" @click="flash">
         <template #icon>
           <download-outlined />
         </template>
-        烧录
+        Upload firmware
       </a-button>
     </a-space>
   </div>
@@ -81,10 +81,10 @@ const emit = defineEmits<{
 }>();
 
 const columns = [
-  { title: '地址', key: 'address' },
-  { title: '大小', key: 'length', align: 'right' },
-  { title: '文件', key: 'name' },
-  { title: '进度', key: 'progress', width: '150px' },
+  { title: 'Adres', key: 'address' },
+  { title: 'Lengte', key: 'length', align: 'right' },
+  { title: 'Naam', key: 'name' },
+  { title: 'Vooruitgang', key: 'progress', width: '150px' },
 ];
 
 const connecting = computed(() => props.state.stage == 'connecting');

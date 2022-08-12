@@ -1,6 +1,6 @@
 <template>
-  <h1 :class="$style.title">Web ESPTool</h1>
-  <div :class="$style.author">by XiNGRZ</div>
+  <h1 :class="$style.title">Fri3d Flasher</h1>
+  <!-- <div :class="$style.author">by XiNGRZ</div> -->
   <div :class="[$style.main, $style.upload]" v-if="progress == null">
     <a-upload-dragger :accept="acceptExts.join(',')" :showUploadList="false" :customRequest="handleFile">
       <p class="ant-upload-drag-icon">
@@ -8,14 +8,14 @@
         <inbox-outlined v-else />
       </p>
       <p class="ant-upload-text" :class="$style.file" v-if="firmware">{{ firmware.name }}</p>
-      <p class="ant-upload-text" v-else>点击选择或将固件包拖放到此处</p>
+      <p class="ant-upload-text" v-else>Klik om het firmwarepakket hier te selecteren of sleep en zet het neer</p>
     </a-upload-dragger>
   </div>
   <div :class="[$style.main, $style.progress]" v-if="progress != null">{{ Math.floor(progress || 0) }}%</div>
   <div :class="$style.buttons">
     <a-button size="large" v-if="stage != 'flashing'" :type="completed ? 'default' : 'primary'" :ghost="completed"
       :disabled="!firmware" :loading="stage == 'connecting'" @click="handleStart">
-      开始烧录</a-button>
+      Begin the flashen</a-button>
   </div>
 </template>
 

@@ -2,7 +2,7 @@
   <sonic-view :peak="peak" :level="level" :period="500" />
   <div :class="{ [$style.header]: true, [$style.inverted]: (progress || 0) > 95 }">
     <a-space align="center">
-      <span>高级模式</span>
+      <span>Geavanceerde modus</span>
       <a-switch :checked="advanced" @update:checked="setAdvanced" />
     </a-space>
   </div>
@@ -17,7 +17,7 @@
     <a-divider type="vertical" />
     <a href="https://github.com/xingrz/web-esptool">Fork me on GitHub</a>
     <a-divider type="vertical" />
-    <a href="https://github.com/xingrz/web-esptool/wiki">固件格式说明</a>
+    <a href="https://github-com.translate.goog/xingrz/web-esptool/wiki?_x_tr_sl=zh-TW&_x_tr_tl=nl&_x_tr_hl=nl&_x_tr_pto=wapp">Firmware formaat beschrijving</a>
   </div>
 </template>
 
@@ -64,7 +64,7 @@ const esp = new ESPTool();
 esp.on('connect', (device: IESPDevice) => {
   state.device = device;
   console.log(`Connected: ${device.description}`);
-  message.success(`已连接：${device.description}`);
+  message.success(`Verbonden：${device.description}`);
 });
 
 esp.on('disconnect', () => {
@@ -77,7 +77,7 @@ esp.on('progress', (progress: IFlashProgress) => {
 
 async function handleFile(file: File): Promise<void> {
   if (file.size >= MAX_FILE_SIZE) {
-    message.error(`文件过大: ${Math.round(file.size / 1024 / 1024)} MB`);
+    message.error(`Bestand is te groot: ${Math.round(file.size / 1024 / 1024)} MB`);
     return;
   }
 
@@ -91,7 +91,7 @@ async function handleFile(file: File): Promise<void> {
   }
 
   if (state.flashArgs == null) {
-    message.error('该文件不是一个合法的固件包');
+    message.error('Het bestand is geen geldig firmwarepakket');
     return;
   }
 
@@ -108,7 +108,7 @@ async function connect(): Promise<boolean> {
     await esp.open(serial);
     return true;
   } catch (e) {
-    message.error('设备打开失败');
+    message.error('Apparaat kan niet worden geopend');
     return false;
   } finally {
     state.stage = 'idle';
@@ -125,7 +125,7 @@ async function flash(reset = false): Promise<boolean> {
     return true;
   } catch (e) {
     console.error(e);
-    message.error('烧录失败');
+    message.error('Flashen mislukt');
     state.progress = null;
     return false;
   } finally {
