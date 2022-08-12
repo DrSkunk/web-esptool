@@ -1,6 +1,8 @@
 <template>
   <sonic-view :peak="peak" :level="level" :period="500" />
-  <div :class="{ [$style.header]: true, [$style.inverted]: (progress || 0) > 95 }">
+  <div
+    :class="{ [$style.header]: true, [$style.inverted]: (progress || 0) > 95 }"
+  >
     <a-space align="center">
       <span>Geavanceerde modus</span>
       <a-switch :checked="advanced" @update:checked="setAdvanced" />
@@ -8,51 +10,77 @@
   </div>
   <div :class="$style.content">
     <router-view v-slot="{ Component }">
-      <component :is="Component" :state="state" :accept-exts="ACCEPT_EXTS" @file="handleFile" @connect="connect"
-        @flash="flash" @reset="reset" @start="oneClick" />
+      <component
+        :is="Component"
+        :state="state"
+        :accept-exts="ACCEPT_EXTS"
+        @file="handleFile"
+        @connect="connect"
+        @flash="flash"
+        @reset="reset"
+        @start="oneClick"
+      />
     </router-view>
   </div>
-  <div :class="{ [$style.footer]: true, [$style.inverted]: !advanced && (progress || 0) > 10 }">
+  <div :class="$style['download-text']">
+    <ul>
+      <li v-for="file in files">
+        <a :href="file.url" target="_blank">Download {{ file.fileName }}</a>
+      </li>
+    </ul>
+
+    <!-- <a href="#">Download laatste versie</a> -->
+  </div>
+  <div
+    :class="{
+      [$style.footer]: true,
+      [$style.inverted]: !advanced && (progress || 0) > 10,
+    }"
+  >
     <span>© 2021-2022 XiNGRZ</span>
     <a-divider type="vertical" />
     <a href="https://github.com/xingrz/web-esptool">Fork me on GitHub</a>
     <a-divider type="vertical" />
-    <a href="https://github-com.translate.goog/xingrz/web-esptool/wiki?_x_tr_sl=zh-TW&_x_tr_tl=nl&_x_tr_hl=nl&_x_tr_pto=wapp">Firmware formaat beschrijving</a>
+    <a
+      href="https://github-com.translate.goog/xingrz/web-esptool/wiki?_x_tr_sl=zh-TW&_x_tr_tl=nl&_x_tr_hl=nl&_x_tr_pto=wapp"
+      >Firmware formaat beschrijving</a
+    >
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive } from 'vue';
-import { useRouter } from 'vue-router';
-import { message } from 'ant-design-vue';
+import { computed, reactive, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { message } from "ant-design-vue";
 
-import SonicView from '@/components/SonicView.vue';
+import SonicView from "@/components/SonicView.vue";
 
-import useTotalProgress from '@/composables/useTotalProgress';
+import useTotalProgress from "@/composables/useTotalProgress";
 
-import readZip from '@/unpack/readZip';
-import readUf2 from '@/unpack/readUf2';
-import ESPTool from '@/esptool';
+import readZip from "@/unpack/readZip";
+import readUf2 from "@/unpack/readUf2";
+import ESPTool from "@/esptool";
 
-import type { IState } from '@/types/state';
-import type { IESPDevice, IFlashProgress } from '@/esptool';
+import type { IState } from "@/types/state";
+import type { IESPDevice, IFlashProgress } from "@/esptool";
+import listFiles from "./firmwarefiles/listFiles";
 
-const ACCEPT_EXTS = ['.zip', '.bin'];
+const ACCEPT_EXTS = [".zip", ".bin"];
 
 const MAX_FILE_SIZE = 16 * 1024 * 1024;
 
 const router = useRouter();
-const advanced = computed(() => router.currentRoute.value.name == 'studio');
+const advanced = computed(() => router.currentRoute.value.name == "studio");
 function setAdvanced(value: boolean) {
   if (value) {
-    router.replace({ name: 'studio' });
+    router.replace({ name: "studio" });
   } else {
-    router.replace({ name: 'simple' });
+    router.replace({ name: "simple" });
   }
 }
 
 const state = reactive<IState>({
-  stage: 'idle',
+  stage: "idle",
   firmware: null,
   device: null,
   flashArgs: null,
@@ -61,37 +89,39 @@ const state = reactive<IState>({
 
 const esp = new ESPTool();
 
-esp.on('connect', (device: IESPDevice) => {
+esp.on("connect", (device: IESPDevice) => {
   state.device = device;
   console.log(`Connected: ${device.description}`);
   message.success(`Verbonden：${device.description}`);
 });
 
-esp.on('disconnect', () => {
+esp.on("disconnect", () => {
   state.device = null;
 });
 
-esp.on('progress', (progress: IFlashProgress) => {
+esp.on("progress", (progress: IFlashProgress) => {
   state.progress = progress;
 });
 
 async function handleFile(file: File): Promise<void> {
   if (file.size >= MAX_FILE_SIZE) {
-    message.error(`Bestand is te groot: ${Math.round(file.size / 1024 / 1024)} MB`);
+    message.error(
+      `Bestand is te groot: ${Math.round(file.size / 1024 / 1024)} MB`
+    );
     return;
   }
 
   state.progress = null;
 
   const name = file.name.toLocaleLowerCase();
-  if (name.endsWith('.zip')) {
+  if (name.endsWith(".zip")) {
     state.flashArgs = await readZip(file);
-  } else if (name.endsWith('.bin')) {
+  } else if (name.endsWith(".bin")) {
     state.flashArgs = await readUf2(file);
   }
 
   if (state.flashArgs == null) {
-    message.error('Het bestand is geen geldig firmwarepakket');
+    message.error("Het bestand is geen geldig firmwarepakket");
     return;
   }
 
@@ -103,15 +133,15 @@ async function connect(): Promise<boolean> {
     return true;
   }
   try {
-    state.stage = 'connecting';
+    state.stage = "connecting";
     const serial = await navigator.serial.requestPort();
     await esp.open(serial);
     return true;
   } catch (e) {
-    message.error('Apparaat kan niet worden geopend');
+    message.error("Apparaat kan niet worden geopend");
     return false;
   } finally {
-    state.stage = 'idle';
+    state.stage = "idle";
   }
 }
 
@@ -120,16 +150,16 @@ async function flash(reset = false): Promise<boolean> {
     return false;
   }
   try {
-    state.stage = 'flashing';
+    state.stage = "flashing";
     await esp.flash(state.flashArgs, reset);
     return true;
   } catch (e) {
     console.error(e);
-    message.error('Flashen mislukt');
+    message.error("Flashen mislukt");
     state.progress = null;
     return false;
   } finally {
-    state.stage = 'idle';
+    state.stage = "idle";
   }
 }
 
@@ -139,20 +169,21 @@ async function reset(): Promise<void> {
 
 async function oneClick(): Promise<void> {
   state.progress = null;
-  if (!await connect()) {
+  if (!(await connect())) {
     return;
   }
   await flash(true);
   await esp.close();
-  console.log('done');
+  console.log("done");
 }
 
 const progress = useTotalProgress(state);
 
 const peak = computed(() => {
-  if (state.stage == 'flashing') return 0.7;
-  else if (state.stage == 'connecting') return 0.4;
-  else if (progress.value != null && progress.value >= 100 && !advanced.value) return 0;
+  if (state.stage == "flashing") return 0.7;
+  else if (state.stage == "connecting") return 0.4;
+  else if (progress.value != null && progress.value >= 100 && !advanced.value)
+    return 0;
   else return 0.2;
 });
 
@@ -165,11 +196,31 @@ const level = computed(() => {
 });
 </script>
 
+<script lang="ts">
+export default {
+  data() {
+    return {
+      files: [],
+    };
+  },
+  mounted() {
+    listFiles().then((files) => {
+      this.files = files;
+    });
+  },
+};
+</script>
+
 <style lang="scss" module>
 :global(html),
 :global(body) {
   margin: 0;
   padding: 0;
+}
+
+.download-text {
+  text-align: center;
+  font-size: 2em;
 }
 
 .header {
@@ -204,10 +255,10 @@ const level = computed(() => {
   }
 
   &.inverted {
-    color: #FFF;
+    color: #fff;
 
     a {
-      color: #FFD;
+      color: #ffd;
     }
   }
 }

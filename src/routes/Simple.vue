@@ -2,30 +2,49 @@
   <h1 :class="$style.title">Fri3d Flasher</h1>
   <!-- <div :class="$style.author">by XiNGRZ</div> -->
   <div :class="[$style.main, $style.upload]" v-if="progress == null">
-    <a-upload-dragger :accept="acceptExts.join(',')" :showUploadList="false" :customRequest="handleFile">
+    <a-upload-dragger
+      :accept="acceptExts.join(',')"
+      :showUploadList="false"
+      :customRequest="handleFile"
+    >
       <p class="ant-upload-drag-icon">
         <file-zip-outlined v-if="firmware" />
         <inbox-outlined v-else />
       </p>
-      <p class="ant-upload-text" :class="$style.file" v-if="firmware">{{ firmware.name }}</p>
-      <p class="ant-upload-text" v-else>Klik om het firmwarepakket hier te selecteren of sleep en zet het neer</p>
+      <p class="ant-upload-text" :class="$style.file" v-if="firmware">
+        {{ firmware.name }}
+      </p>
+      <p class="ant-upload-text" v-else>
+        Download hieronder een firmwarebestand en klik dan hier om het te
+        uploaden.
+      </p>
     </a-upload-dragger>
   </div>
-  <div :class="[$style.main, $style.progress]" v-if="progress != null">{{ Math.floor(progress || 0) }}%</div>
+  <div :class="[$style.main, $style.progress]" v-if="progress != null">
+    {{ Math.floor(progress || 0) }}%
+  </div>
   <div :class="$style.buttons">
-    <a-button size="large" v-if="stage != 'flashing'" :type="completed ? 'default' : 'primary'" :ghost="completed"
-      :disabled="!firmware" :loading="stage == 'connecting'" @click="handleStart">
-      Begin the flashen</a-button>
+    <a-button
+      size="large"
+      v-if="stage != 'flashing'"
+      :type="completed ? 'default' : 'primary'"
+      :ghost="completed"
+      :disabled="!firmware"
+      :loading="stage == 'connecting'"
+      @click="handleStart"
+    >
+      Begin the flashen</a-button
+    >
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, defineEmits, defineProps, toRefs } from 'vue';
-import { InboxOutlined, FileZipOutlined } from '@ant-design/icons-vue';
+import { computed, defineEmits, defineProps, toRefs } from "vue";
+import { InboxOutlined, FileZipOutlined } from "@ant-design/icons-vue";
 
-import useTotalProgress from '@/composables/useTotalProgress';
+import useTotalProgress from "@/composables/useTotalProgress";
 
-import type { IState } from '@/types/state';
+import type { IState } from "@/types/state";
 
 const props = defineProps<{
   state: IState;
@@ -33,11 +52,11 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'file', file: File): void;
-  (e: 'connect'): void;
-  (e: 'reset'): void;
-  (e: 'flash'): void;
-  (e: 'start'): void;
+  (e: "file", file: File): void;
+  (e: "connect"): void;
+  (e: "reset"): void;
+  (e: "flash"): void;
+  (e: "start"): void;
 }>();
 
 const { stage, firmware } = toRefs(props.state);
@@ -45,11 +64,11 @@ const progress = useTotalProgress(props.state);
 const completed = computed(() => progress.value == 100);
 
 function handleFile({ file }: { file: File }): void {
-  emit('file', file);
+  emit("file", file);
 }
 
 function handleStart(): void {
-  emit('start');
+  emit("start");
 }
 </script>
 
